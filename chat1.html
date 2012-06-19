@@ -1,0 +1,69 @@
+<html>
+<head>
+	<link rel="stylesheet" type="text/css" href="./chat.css"/>
+	<link href='http://fonts.googleapis.com/css?family=Homenaje' rel='stylesheet' type='text/css'/>
+	<script src="/socket.io/socket.io.js"></script>
+	<script>
+
+		var socket = io.connect('http://localhost');
+		var username = "spy";
+
+		// SOCKET.IO EVENTS
+
+		// on connect
+		socket.on('connect', function(){
+		textArea.value = "Connected to server!\n";
+		});
+
+		// on connecting
+		socket.on('connecting', function(){
+			textArea.value = "Connecting...\n";
+			console.log("Connecting....");
+		});
+
+		// on 'incoming_chat1 message'
+		socket.on('incoming_chat1', function(message){
+			console.log(" [-] chat1 console received message: "+message.msg);
+			textArea.value += message.user + ": " + message.msg+"\n";
+		});
+
+	// send message via socket.io
+	// msg: value of message input box
+	// src: the chatroom it is sent from
+	// user: the username of the sender
+	function sendMessage(){
+		socket.emit('msg',  {msg: messageInput.value, 
+			src: "chatroom_1",
+			key: "chat.chat1",
+			user: username});
+		messageInput.value = "";
+	}
+
+	// set username and then hides the username submit divs
+	function setUsername(){
+		username = usernameInput.value;
+		document.getElementById('username').innerHTML = "user: "+username;
+		var usernameDiv = document.getElementById('username');
+		usernameDiv.removeChild(document.getElementById('usernameButton'));
+	}
+
+</script>
+</head>
+<body>
+	<div class="title_bar">
+		<h1>+ CHATROOM1</h1>
+	</div>
+	<div class="chatroom">
+		<p>chatroom1 only receives messages sent from chatroom1.</p>
+		<div id="username">
+			<input id='usernameInput' name='usernameInput' type='text' value="anon" />
+			<button id="usernameButton" onClick='setUsername();'>Set username</button>
+		</div>
+		<div>
+			<input id='messageInput' name='messageInput' type='text' />
+			<button onClick='sendMessage();'>Send</button>
+		</div>
+		<textarea id='textArea' rows="20" cols="30"></textarea>
+	</div>
+</body>
+</html>
